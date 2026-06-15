@@ -8,6 +8,7 @@ A command-line tool that analyzes Python source code and generates interactive c
 - **Cross-File Tracing** — Follows imports across modules and packages
 - **Multiple Output Formats**:
   - 📊 **Interactive HTML** — D3.js-powered collapsible tree with zoom, search, and details panel
+  - ⚡ **Lightweight HTML** — Fast native `<details>` tree for massive graphs (100k+ nodes)
   - 📝 **Mermaid Markdown** — Renders in GitHub, VS Code, and other Markdown viewers  
   - 📦 **JSON** — Raw tree data for programmatic use
 - **Smart Resolution** — Resolves function calls through imports, class methods, and `self` references
@@ -30,6 +31,9 @@ python main.py --entry your_app.py --func main --format mermaid
 # Generate JSON output
 python main.py --entry your_app.py --func main --format json
 
+# Generate Lightweight HTML for huge call graphs
+python main.py --entry your_app.py --func main --format html-light
+
 # Exclude external/built-in function calls
 python main.py --entry your_app.py --func main --no-externals
 
@@ -46,6 +50,9 @@ python main.py --entry your_app.py --func main --mode flow --inline --inline-dep
 
 # Flow tree as JSON
 python main.py --entry your_app.py --func main --mode flow --format json
+
+# Fast Lightweight HTML for massive flow trees
+python main.py --entry your_app.py --func main --mode flow --inline --format html-light
 ```
 
 ## Flow / Decision Tree Mode
@@ -85,7 +92,7 @@ With `--inline`, the tool **expands called functions inline** — when a call is
 | `--func`, `-f` | Name of the entry function (e.g., `main` or `Class.method`) | *(required)* |
 | `--dir`, `-d` | Project directory to scan | Entry file's directory |
 | `--output`, `-o` | Output file path | `call_graph.<ext>` or `flow_tree.<ext>` |
-| `--format` | Output format: `html`, `json`, `mermaid` | `html` |
+| `--format` | Output format: `html`, `html-light`, `json`, `mermaid` | `html` |
 | `--mode` | Analysis mode: `call` (call graph) or `flow` (decision tree) | `call` |
 | `--max-depth` | Maximum call tree depth | `30` |
 | `--no-externals` | Exclude unresolved/external calls (call mode) | `false` |
