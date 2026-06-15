@@ -826,3 +826,139 @@ window.addEventListener('resize', () => {
 </script>
 </body>
 </html>"""
+
+def render_flow_html_light(flow_tree: dict, output_path: str, project_dir: Optional[str] = None) -> str:
+    """Render a lightweight HTML page using native <details> tags (for 50k+ nodes)."""
+    project_label = os.path.basename(project_dir) if project_dir else 'Project'
+    
+    kind_colors = {
+        'function':'#7c3aed','call':'#6366f1','assign':'#10b981','mutation':'#f97316',
+        'branch':'#f59e0b','branch_true':'#22c55e','branch_false':'#ef4444','branch_elif':'#eab308',
+        'loop_for':'#06b6d4','loop_while':'#06b6d4','loop_async_for':'#06b6d4',
+        'loop_body':'#0891b2','loop_else':'#0e7490',
+        'try':'#f59e0b','try_body':'#d97706','except':'#ef4444','try_else':'#84cc16','finally':'#6b7280',
+        'context':'#14b8a6','context_async':'#14b8a6',
+        'return':'#ec4899','yield':'#d946ef','raise':'#ef4444','assert':'#8b5cf6',
+        'break':'#fb923c','continue':'#fb923c','pass':'#6b7280',
+        'import':'#6b7280','def':'#7c3aed','class':'#7c3aed',
+        'match':'#f59e0b','case':'#fbbf24',
+        'expression':'#94a3b8','recursive':'#f59e0b','depth_limit':'#6b7280',
+        'delete':'#f87171','global':'#6b7280','nonlocal':'#6b7280','other':'#6b7280',
+    }
+
+    kind_icons = {
+        'function':'ƒ','call':'→','assign':'←','mutation':'↺',
+        'branch':'◆','branch_true':'✓','branch_false':'✗','branch_elif':'◆',
+        'loop_for':'⟳','loop_while':'⟳','loop_async_for':'⟳',
+        'loop_body':'↳','loop_else':'↳',
+        'try':'⚡','try_body':'↳','except':'✋','try_else':'↳','finally':'⏏',
+        'context':'📦','context_async':'📦',
+        'return':'⏎','yield':'⏎','raise':'💥','assert':'✓',
+        'break':'⛔','continue':'↪','pass':'·',
+        'import':'📥','def':'ƒ','class':'◎',
+        'match':'◆','case':'▸','expression':'•',
+        'recursive':'↻','depth_limit':'⋯',
+        'delete':'✕','global':'G','nonlocal':'N','other':'•',
+    }
+    
+    html = [
+        "<!DOCTYPE html>",
+        "<html lang='en'>",
+        "<head>",
+        "<meta charset='UTF-8'>",
+        f"<title>Flow Tree (Light) &mdash; {project_label}</title>",
+        "<style>",
+        ":root {",
+        "  --bg-primary: #0f0f1a;",
+        "  --bg-secondary: #1a1a2e;",
+        "  --text-primary: #e2e8f0;",
+        "  --text-muted: #64748b;",
+        "  --border-subtle: #ffffff20;",
+        "}",
+        "body {",
+        "  font-family: 'JetBrains Mono', Consolas, monospace;",
+        "  background: var(--bg-primary);",
+        "  color: var(--text-primary);",
+        "  padding: 24px; line-height: 1.6; font-size: 13px;",
+        "}",
+        ".topbar { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }",
+        ".topbar h2 { margin: 0; font-family: sans-serif; font-weight: 500; font-size: 18px; color: #a78bfa; }",
+        "details { margin-left: 20px; border-left: 1px solid var(--border-subtle); padding-left: 12px; }",
+        "summary { cursor: pointer; list-style: none; display: flex; align-items: center; padding: 2px 4px; border-radius: 4px; }",
+        "summary::-webkit-details-marker { display: none; }",
+        "summary:hover { background: var(--bg-secondary); }",
+        ".node { display: flex; align-items: center; padding: 2px 4px; margin: 1px 0; }",
+        "summary::before { content: '▶'; font-size: 10px; color: var(--text-muted); margin-right: 8px; transition: transform 0.2s; display: inline-block; }",
+        "details[open] > summary::before { transform: rotate(90deg); }",
+        ".icon { display: inline-block; width: 18px; text-align: center; margin-right: 6px; }",
+        ".label { flex: 1; }",
+        ".kind-badge { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 6px; border-radius: 999px; margin-left: 12px; opacity: 0.8; }",
+        ".meta { margin-left: 12px; font-size: 11px; color: var(--text-muted); }",
+        ".btn { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-subtle); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px; margin-left: 8px; }",
+        ".btn:hover { background: #2a2a40; }",
+        "</style>",
+        "</head>",
+        "<body>",
+        "<div class='topbar'>",
+        f"  <h2>PyCallGraph &mdash; Flow Tree (Lightweight)</h2>",
+        "  <div>",
+        "    <button class='btn' onclick='expandAll()'>Expand All</button>",
+        "    <button class='btn' onclick='collapseAll()'>Collapse All</button>",
+        "  </div>",
+        "</div>",
+        "<div id='tree-root'>",
+    ]
+    
+    def escape(s):
+        return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        
+    def walk(node, depth):
+        kind = node.get('kind', 'other')
+        label = node.get('label', '?')
+        children = node.get('children', [])
+        meta = node.get('meta', {})
+        
+        color = kind_colors.get(kind, '#6b7280')
+        icon = kind_icons.get(kind, '')
+        
+        # Avoid showing ✓ and ✗ again if they are in the label
+        if kind == 'branch_true' and '✓' in label: icon = ''
+        if kind == 'branch_false' and '✗' in label: icon = ''
+        
+        label_html = escape(label)
+        meta_html = ''
+        if meta.get('inlined'):
+            meta_html += ' <span style="color:#22c55e">[INLINED]</span>'
+        if meta.get('resolved_to'):
+            meta_html += f' <span class="meta">&rarr; {escape(meta["resolved_to"])}</span>'
+        if node.get('line'):
+            meta_html += f' <span class="meta">L{node["line"]}</span>'
+            
+        badge_html = f'<span class="kind-badge" style="color:{color}; background:{color}20">{kind}</span>'
+        icon_html = f'<span class="icon" style="color:{color}">{icon}</span>'
+        
+        if not children:
+            html.append(f"<div class='node'>{icon_html}<span class='label' style='color:{color}'>{label_html}{meta_html}</span>{badge_html}</div>")
+        else:
+            open_attr = " open" if depth < 2 else ""
+            html.append(f"<details{open_attr}><summary><span class='icon' style='color:{color}'>{icon}</span><span class='label' style='color:{color}'>{label_html} <span class='meta'>({len(children)})</span>{meta_html}</span>{badge_html}</summary>")
+            for child in children:
+                walk(child, depth + 1)
+            html.append("</details>")
+            
+    walk(flow_tree, 0)
+    
+    html.extend([
+        "</div>",
+        "<script>",
+        "function expandAll() { document.querySelectorAll('details').forEach(d => d.open = true); }",
+        "function collapseAll() { document.querySelectorAll('details').forEach(d => d.open = false); }",
+        "</script>",
+        "</body>",
+        "</html>"
+    ])
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write("\n".join(html))
+        
+    return output_path

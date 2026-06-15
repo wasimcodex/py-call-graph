@@ -55,8 +55,8 @@ Examples:
                         help='Project directory to scan. Defaults to the directory of the entry file.')
     parser.add_argument('--output', '-o', default=None,
                         help='Output file path. Defaults to "call_graph.<format>" or "flow_tree.<format>".')
-    parser.add_argument('--format', choices=['html', 'json', 'mermaid'], default='html',
-                        help='Output format (default: html).')
+    parser.add_argument('--format', choices=['html', 'html-light', 'json', 'mermaid'], default='html',
+                        help='Output format (default: html). Use html-light for very large projects.')
     parser.add_argument('--max-depth', type=int, default=30,
                         help='Maximum call tree depth (default: 30).')
     parser.add_argument('--no-externals', action='store_true',
@@ -91,7 +91,7 @@ Examples:
 
 def _run_call_mode(args, entry_file: str, project_dir: str):
     """Run the classic call graph analysis."""
-    ext_map = {'html': 'html', 'json': 'json', 'mermaid': 'md'}
+    ext_map = {'html': 'html', 'html-light': 'html', 'json': 'json', 'mermaid': 'md'}
     output_path = args.output or f"call_graph.{ext_map[args.format]}"
 
     # ── Analyze ────────────────────────────────────────────────
@@ -126,15 +126,18 @@ def _run_call_mode(args, entry_file: str, project_dir: str):
         render_mermaid(tree, output_path)
     elif args.format == 'html':
         render_html(tree, output_path, project_dir=project_dir)
+    elif args.format == 'html-light':
+        from renderer import render_html_light
+        render_html_light(tree, output_path, project_dir=project_dir)
 
     print(f"\n✅ Done! Output saved to: {os.path.abspath(output_path)}\n")
 
 
 def _run_flow_mode(args, entry_file: str, project_dir: str):
     """Run the flow / decision tree analysis."""
-    from flow_renderer import render_flow_html, render_flow_json, render_flow_mermaid
+    from flow_renderer import render_flow_html, render_flow_html_light, render_flow_json, render_flow_mermaid
 
-    ext_map = {'html': 'html', 'json': 'json', 'mermaid': 'md'}
+    ext_map = {'html': 'html', 'html-light': 'html', 'json': 'json', 'mermaid': 'md'}
     output_path = args.output or f"flow_tree.{ext_map[args.format]}"
 
     # ── Analyze ────────────────────────────────────────────────
@@ -207,6 +210,8 @@ def _run_flow_mode(args, entry_file: str, project_dir: str):
         render_flow_mermaid(flow_dict, output_path)
     elif args.format == 'html':
         render_flow_html(flow_dict, output_path, project_dir=project_dir)
+    elif args.format == 'html-light':
+        render_flow_html_light(flow_dict, output_path, project_dir=project_dir)
 
     print(f"\n✅ Done! Output saved to: {os.path.abspath(output_path)}\n")
 

@@ -769,3 +769,111 @@ window.addEventListener('resize', () => {
 </script>
 </body>
 </html>"""
+
+def render_html_light(call_tree, output_path: str, project_dir: Optional[str] = None) -> str:
+    """Render a lightweight HTML page for standard call graphs using native <details> tags (for huge graphs)."""
+    project_label = os.path.basename(project_dir) if project_dir else 'Project'
+    tree_data = call_tree.to_dict()
+    
+    html = [
+        "<!DOCTYPE html>",
+        "<html lang='en'>",
+        "<head>",
+        "<meta charset='UTF-8'>",
+        f"<title>Call Graph (Light) &mdash; {project_label}</title>",
+        "<style>",
+        ":root {",
+        "  --bg-primary: #0f0f1a;",
+        "  --bg-secondary: #1a1a2e;",
+        "  --text-primary: #e2e8f0;",
+        "  --text-muted: #64748b;",
+        "  --border-subtle: #ffffff20;",
+        "}",
+        "body {",
+        "  font-family: 'JetBrains Mono', Consolas, monospace;",
+        "  background: var(--bg-primary);",
+        "  color: var(--text-primary);",
+        "  padding: 24px; line-height: 1.6; font-size: 13px;",
+        "}",
+        ".topbar { margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; }",
+        ".topbar h2 { margin: 0; font-family: sans-serif; font-weight: 500; font-size: 18px; color: #a78bfa; }",
+        "details { margin-left: 20px; border-left: 1px solid var(--border-subtle); padding-left: 12px; }",
+        "summary { cursor: pointer; list-style: none; display: flex; align-items: center; padding: 2px 4px; border-radius: 4px; }",
+        "summary::-webkit-details-marker { display: none; }",
+        "summary:hover { background: var(--bg-secondary); }",
+        ".node { display: flex; align-items: center; padding: 2px 4px; margin: 1px 0; }",
+        "summary::before { content: '▶'; font-size: 10px; color: var(--text-muted); margin-right: 8px; transition: transform 0.2s; display: inline-block; }",
+        "details[open] > summary::before { transform: rotate(90deg); }",
+        ".icon { display: inline-block; width: 18px; text-align: center; margin-right: 6px; }",
+        ".label { flex: 1; }",
+        ".meta { margin-left: 12px; font-size: 11px; color: var(--text-muted); }",
+        ".btn { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-subtle); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px; margin-left: 8px; }",
+        ".btn:hover { background: #2a2a40; }",
+        "</style>",
+        "</head>",
+        "<body>",
+        "<div class='topbar'>",
+        f"  <h2>PyCallGraph &mdash; Call Graph (Lightweight)</h2>",
+        "  <div>",
+        "    <button class='btn' onclick='expandAll()'>Expand All</button>",
+        "    <button class='btn' onclick='collapseAll()'>Collapse All</button>",
+        "  </div>",
+        "</div>",
+        "<div id='tree-root'>",
+    ]
+    
+    def escape(s):
+        return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        
+    def walk(node, depth):
+        label = node.get('name', '?')
+        children = node.get('children', [])
+        
+        is_external = node.get('is_external', False)
+        is_recursive = node.get('is_recursive', False)
+        
+        color = '#7c3aed'
+        icon = 'ƒ'
+        
+        if is_external:
+            color = '#94a3b8'
+            icon = '🔗'
+        elif is_recursive:
+            color = '#f59e0b'
+            icon = '🔄'
+            
+        label_html = escape(label)
+        meta_html = ''
+        if node.get('qualified_name'):
+            meta_html += f' <span class="meta">{escape(node["qualified_name"])}</span>'
+        if node.get('file'):
+            meta_html += f' <span class="meta">{escape(os.path.basename(node["file"]))}:{node.get("line", "?")}</span>'
+            
+        icon_html = f'<span class="icon" style="color:{color}">{icon}</span>'
+        
+        # Don't recurse into recursive nodes to avoid infinite loops
+        if not children or is_recursive:
+            html.append(f"<div class='node'>{icon_html}<span class='label' style='color:{color}'>{label_html}{meta_html}</span></div>")
+        else:
+            open_attr = " open" if depth < 2 else ""
+            html.append(f"<details{open_attr}><summary><span class='icon' style='color:{color}'>{icon}</span><span class='label' style='color:{color}'>{label_html} <span class='meta'>({len(children)})</span>{meta_html}</span></summary>")
+            for child in children:
+                walk(child, depth + 1)
+            html.append("</details>")
+            
+    walk(tree_data, 0)
+    
+    html.extend([
+        "</div>",
+        "<script>",
+        "function expandAll() { document.querySelectorAll('details').forEach(d => d.open = true); }",
+        "function collapseAll() { document.querySelectorAll('details').forEach(d => d.open = false); }",
+        "</script>",
+        "</body>",
+        "</html>"
+    ])
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write("\n".join(html))
+        
+    return output_path
