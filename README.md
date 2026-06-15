@@ -32,7 +32,50 @@ python main.py --entry your_app.py --func main --format json
 
 # Exclude external/built-in function calls
 python main.py --entry your_app.py --func main --no-externals
+
+# ── Flow / Decision Tree Mode ─────────────────────────
+
+# Generate a flow tree showing control flow, assignments, and data flow
+python main.py --entry your_app.py --func main --mode flow
+
+# Flow tree with called functions inlined (deep analysis)
+python main.py --entry your_app.py --func main --mode flow --inline
+
+# Control inline depth (default: 6)
+python main.py --entry your_app.py --func main --mode flow --inline --inline-depth 4
+
+# Flow tree as JSON
+python main.py --entry your_app.py --func main --mode flow --format json
 ```
+
+## Flow / Decision Tree Mode
+
+The `--mode flow` option generates a **detailed decision tree** instead of a flat call graph. This captures:
+
+- **Control Flow Branches**: `if/elif/else`, `for`, `while`, `try/except/finally`, `with`, `match/case`
+- **Variable Assignments & Mutations**: tracks what variables are set and what values/expressions they receive
+- **Data Flow**: shows which variables flow into each function call as arguments
+- **Sequential Ordering**: statements appear in their actual execution order
+- **Nested Calls**: calls within expressions (e.g., `foo(bar(x))`) are shown as nested nodes
+
+With `--inline`, the tool **expands called functions inline** — when a call is encountered, the called function's own flow tree is inlined as children of the call node, letting you trace execution across function boundaries.
+
+### Node Types in the Flow Tree
+
+| Icon | Kind | Meaning |
+|------|------|---------|
+| `ƒ` | Function | Function entry point |
+| `→` | Call | Function/method call |
+| `←` | Assign | Variable assignment |
+| `↺` | Mutation | Augmented assignment (`+=`, etc.) |
+| `◆` | Branch | `if`/`elif` condition |
+| `✓` | True Branch | Code when condition is true |
+| `✗` | False Branch | Code in `else` block |
+| `⟳` | Loop | `for`/`while` loop |
+| `⚡` | Try | `try` block |
+| `✋` | Except | Exception handler |
+| `⏎` | Return | Return statement |
+| `💥` | Raise | Raise exception |
 
 ## CLI Options
 
@@ -41,10 +84,13 @@ python main.py --entry your_app.py --func main --no-externals
 | `--entry`, `-e` | Path to the file containing the entry function | *(required)* |
 | `--func`, `-f` | Name of the entry function (e.g., `main` or `Class.method`) | *(required)* |
 | `--dir`, `-d` | Project directory to scan | Entry file's directory |
-| `--output`, `-o` | Output file path | `call_graph.<ext>` |
+| `--output`, `-o` | Output file path | `call_graph.<ext>` or `flow_tree.<ext>` |
 | `--format` | Output format: `html`, `json`, `mermaid` | `html` |
+| `--mode` | Analysis mode: `call` (call graph) or `flow` (decision tree) | `call` |
 | `--max-depth` | Maximum call tree depth | `30` |
-| `--no-externals` | Exclude unresolved/external calls | `false` |
+| `--no-externals` | Exclude unresolved/external calls (call mode) | `false` |
+| `--inline` | Inline called functions into the flow tree (flow mode) | `false` |
+| `--inline-depth` | Maximum inlining depth (flow mode) | `6` |
 
 ## Example with Test Project
 
