@@ -1,0 +1,400 @@
+{
+  "name": "main",
+  "qualified_name": "test_project.app.main",
+  "file_path": "/Users/codex/Desktop/py-call-graph/test_project/app.py",
+  "line_start": 8,
+  "line_end": 17,
+  "signature": "def main()",
+  "docstring": "Application entry point that orchestrates the pipeline.",
+  "is_external": false,
+  "is_recursive": false,
+  "children": [
+    {
+      "name": "get_user_data",
+      "qualified_name": "test_project.app.get_user_data",
+      "file_path": "/Users/codex/Desktop/py-call-graph/test_project/app.py",
+      "line_start": 20,
+      "line_end": 22,
+      "signature": "def get_user_data()",
+      "docstring": "Simulate fetching user data.",
+      "is_external": false,
+      "is_recursive": false,
+      "children": []
+    },
+    {
+      "name": "validate_input",
+      "qualified_name": "test_project.utils.validate_input",
+      "file_path": "/Users/codex/Desktop/py-call-graph/test_project/utils.py",
+      "line_start": 22,
+      "line_end": 26,
+      "signature": "def validate_input(data)",
+      "docstring": "Validate the input data dictionary.",
+      "is_external": false,
+      "is_recursive": false,
+      "children": [
+        {
+          "name": "check_required_fields",
+          "qualified_name": "test_project.utils.check_required_fields",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/utils.py",
+          "line_start": 29,
+          "line_end": 32,
+          "signature": "def check_required_fields(data)",
+          "docstring": "Check that all required fields are present.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": [
+            {
+              "name": "all",
+              "qualified_name": "all",
+              "file_path": null,
+              "line_start": null,
+              "line_end": null,
+              "signature": null,
+              "docstring": null,
+              "is_external": true,
+              "is_recursive": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "isinstance",
+          "qualified_name": "isinstance",
+          "file_path": null,
+          "line_start": null,
+          "line_end": null,
+          "signature": null,
+          "docstring": null,
+          "is_external": true,
+          "is_recursive": false,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "DataProcessor",
+      "qualified_name": "DataProcessor",
+      "file_path": null,
+      "line_start": null,
+      "line_end": null,
+      "signature": null,
+      "docstring": null,
+      "is_external": true,
+      "is_recursive": false,
+      "children": []
+    },
+    {
+      "name": "process",
+      "qualified_name": "test_project.services.processor.DataProcessor.process",
+      "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/processor.py",
+      "line_start": 7,
+      "line_end": 11,
+      "signature": "def process(self, data)",
+      "docstring": "Run the full processing pipeline.",
+      "is_external": false,
+      "is_recursive": false,
+      "children": [
+        {
+          "name": "clean",
+          "qualified_name": "test_project.services.processor.DataProcessor.clean",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/processor.py",
+          "line_start": 13,
+          "line_end": 15,
+          "signature": "def clean(self, data)",
+          "docstring": "Remove invalid entries from the data.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": [
+            {
+              "name": "items",
+              "qualified_name": "data.items",
+              "file_path": null,
+              "line_start": null,
+              "line_end": null,
+              "signature": null,
+              "docstring": null,
+              "is_external": true,
+              "is_recursive": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "transform",
+          "qualified_name": "test_project.services.processor.DataProcessor.transform",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/processor.py",
+          "line_start": 17,
+          "line_end": 21,
+          "signature": "def transform(self, data)",
+          "docstring": "Apply transformations to the data.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": [
+            {
+              "name": "_calculate_score",
+              "qualified_name": "test_project.services.processor.DataProcessor._calculate_score",
+              "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/processor.py",
+              "line_start": 29,
+              "line_end": 31,
+              "signature": "def _calculate_score(self, data)",
+              "docstring": "Calculate a score for the data.",
+              "is_external": false,
+              "is_recursive": false,
+              "children": [
+                {
+                  "name": "get",
+                  "qualified_name": "data.get",
+                  "file_path": null,
+                  "line_start": null,
+                  "line_end": null,
+                  "signature": null,
+                  "docstring": null,
+                  "is_external": true,
+                  "is_recursive": false,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "enrich",
+          "qualified_name": "test_project.services.processor.DataProcessor.enrich",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/processor.py",
+          "line_start": 23,
+          "line_end": 27,
+          "signature": "def enrich(self, data)",
+          "docstring": "Enrich data with additional metadata.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": [
+            {
+              "name": "_generate_tags",
+              "qualified_name": "test_project.services.processor.DataProcessor._generate_tags",
+              "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/processor.py",
+              "line_start": 33,
+              "line_end": 40,
+              "signature": "def _generate_tags(self, data)",
+              "docstring": "Generate tags based on data content.",
+              "is_external": false,
+              "is_recursive": false,
+              "children": [
+                {
+                  "name": "get",
+                  "qualified_name": "data.get",
+                  "file_path": null,
+                  "line_start": null,
+                  "line_end": null,
+                  "signature": null,
+                  "docstring": null,
+                  "is_external": true,
+                  "is_recursive": false,
+                  "children": []
+                },
+                {
+                  "name": "append",
+                  "qualified_name": "tags.append",
+                  "file_path": null,
+                  "line_start": null,
+                  "line_end": null,
+                  "signature": null,
+                  "docstring": null,
+                  "is_external": true,
+                  "is_recursive": false,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "format_output",
+      "qualified_name": "test_project.utils.format_output",
+      "file_path": "/Users/codex/Desktop/py-call-graph/test_project/utils.py",
+      "line_start": 6,
+      "line_end": 9,
+      "signature": "def format_output(data)",
+      "docstring": "Format output data into a display string.",
+      "is_external": false,
+      "is_recursive": false,
+      "children": [
+        {
+          "name": "serialize",
+          "qualified_name": "test_project.utils.serialize",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/utils.py",
+          "line_start": 12,
+          "line_end": 14,
+          "signature": "def serialize(data)",
+          "docstring": "Serialize data to JSON string.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": [
+            {
+              "name": "dumps",
+              "qualified_name": "json.dumps",
+              "file_path": null,
+              "line_start": null,
+              "line_end": null,
+              "signature": null,
+              "docstring": null,
+              "is_external": true,
+              "is_recursive": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "add_header",
+          "qualified_name": "test_project.utils.add_header",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/utils.py",
+          "line_start": 17,
+          "line_end": 19,
+          "signature": "def add_header(text)",
+          "docstring": "Add a formatted header to the output.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": []
+        }
+      ]
+    },
+    {
+      "name": "notify_completion",
+      "qualified_name": "test_project.app.notify_completion",
+      "file_path": "/Users/codex/Desktop/py-call-graph/test_project/app.py",
+      "line_start": 25,
+      "line_end": 28,
+      "signature": "def notify_completion(message)",
+      "docstring": "Send a notification after processing.",
+      "is_external": false,
+      "is_recursive": false,
+      "children": [
+        {
+          "name": "Notifier",
+          "qualified_name": "Notifier",
+          "file_path": null,
+          "line_start": null,
+          "line_end": null,
+          "signature": null,
+          "docstring": null,
+          "is_external": true,
+          "is_recursive": false,
+          "children": []
+        },
+        {
+          "name": "send",
+          "qualified_name": "test_project.services.notifier.Notifier.send",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/notifier.py",
+          "line_start": 10,
+          "line_end": 13,
+          "signature": "def send(self, message)",
+          "docstring": "Send a notification through all channels.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": [
+            {
+              "name": "_dispatch",
+              "qualified_name": "test_project.services.notifier.Notifier._dispatch",
+              "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/notifier.py",
+              "line_start": 15,
+              "line_end": 18,
+              "signature": "def _dispatch(self, channel, message)",
+              "docstring": "Dispatch a message to a specific channel.",
+              "is_external": false,
+              "is_recursive": false,
+              "children": [
+                {
+                  "name": "_format_for_channel",
+                  "qualified_name": "test_project.services.notifier.Notifier._format_for_channel",
+                  "file_path": "/Users/codex/Desktop/py-call-graph/test_project/services/notifier.py",
+                  "line_start": 20,
+                  "line_end": 24,
+                  "signature": "def _format_for_channel(self, channel, message)",
+                  "docstring": "Format message for a specific channel.",
+                  "is_external": false,
+                  "is_recursive": false,
+                  "children": []
+                },
+                {
+                  "name": "print",
+                  "qualified_name": "print",
+                  "file_path": null,
+                  "line_start": null,
+                  "line_end": null,
+                  "signature": null,
+                  "docstring": null,
+                  "is_external": true,
+                  "is_recursive": false,
+                  "children": []
+                },
+                {
+                  "name": "upper",
+                  "qualified_name": "channel.upper",
+                  "file_path": null,
+                  "line_start": null,
+                  "line_end": null,
+                  "signature": null,
+                  "docstring": null,
+                  "is_external": true,
+                  "is_recursive": false,
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "handle_error",
+      "qualified_name": "test_project.app.handle_error",
+      "file_path": "/Users/codex/Desktop/py-call-graph/test_project/app.py",
+      "line_start": 31,
+      "line_end": 34,
+      "signature": "def handle_error(msg)",
+      "docstring": "Handle application errors.",
+      "is_external": false,
+      "is_recursive": false,
+      "children": [
+        {
+          "name": "log_error",
+          "qualified_name": "test_project.app.log_error",
+          "file_path": "/Users/codex/Desktop/py-call-graph/test_project/app.py",
+          "line_start": 37,
+          "line_end": 39,
+          "signature": "def log_error(msg)",
+          "docstring": "Log an error message.",
+          "is_external": false,
+          "is_recursive": false,
+          "children": [
+            {
+              "name": "print",
+              "qualified_name": "print",
+              "file_path": null,
+              "line_start": null,
+              "line_end": null,
+              "signature": null,
+              "docstring": null,
+              "is_external": true,
+              "is_recursive": false,
+              "children": []
+            }
+          ]
+        },
+        {
+          "name": "print",
+          "qualified_name": "print",
+          "file_path": null,
+          "line_start": null,
+          "line_end": null,
+          "signature": null,
+          "docstring": null,
+          "is_external": true,
+          "is_recursive": false,
+          "children": []
+        }
+      ]
+    }
+  ]
+}
